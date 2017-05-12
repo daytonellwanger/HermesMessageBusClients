@@ -1,0 +1,123 @@
+<Events startTimestamp="1494554226604" logVersion="0.11.0.201504031625" osName="Windows 10" osVersion="10.0" lineSeparator="\r\n" numMonitors="1" monitorBounds="[0, 0, 1500, 1000]">
+  <Command __id="0" _type="ShellBoundsCommand" bounds="[-6, -6, 1513, 973]" timestamp="61" />
+  <Command __id="1" _type="ShellBoundsCommand" bounds="[0, 0, 0, 0]" timestamp="14888" />
+  <Command __id="2" _type="ShellBoundsCommand" bounds="[-6, -6, 1513, 973]" timestamp="73185" />
+  <Command __id="3" _type="FileOpenCommand" docASTNodeCount="134" docActiveCodeLength="773" docExpressionCount="81" docLength="773" projectName="ExampleClient" timestamp="102140">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\ExampleClient\src\example\Example.java]]></filePath>
+    <snapshot><![CDATA[package example;
+
+import org.json.JSONObject;
+
+import hermes.messagebus.client.library.MessageReceiver;
+import hermes.messagebus.client.library.Client;
+
+public class Example implements MessageReceiver {
+	
+	Client clientThread;
+	private static final String TAGS = ".*";
+
+	public static void main(String[] args) {
+		new Example().go();
+	}
+	
+	private void go() {
+	    clientThread = new Client(TAGS, this);
+	}
+	
+	@Override
+	public void receiveMessage(String message) {
+		JSONObject msgObj = new JSONObject(message);
+		String from = msgObj.getString("from");
+		JSONObject messageToSend = new JSONObject();
+		messageToSend.put("to", from);
+		messageToSend.put("status", "received");
+		clientThread.sendMessageToUser(messageToSend.toString());
+	}
+
+}]]></snapshot>
+  </Command>
+  <Command __id="4" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="102216" />
+  <Command __id="5" _type="MoveCaretCommand" caretOffset="20" docOffset="20" timestamp="104031" />
+  <Command __id="6" _type="EclipseCommand" commandID="org.eclipse.ui.file.import" timestamp="161578" />
+  <Command __id="7" _type="FileOpenCommand" docASTNodeCount="152" docActiveCodeLength="967" docExpressionCount="87" docLength="967" projectName="LogServer" timestamp="170899">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\LogServer\src\main\java\logger\Logger.java]]></filePath>
+    <snapshot><![CDATA[package logger;
+
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.Date;
+
+import hermes.MessageReceiver;
+import hermes.ClientThread;
+
+public class Logger implements MessageReceiver {
+	
+	ClientThread clientThread;
+	private static final String TAGS = ".*";
+	PrintWriter outputFile;
+	private static String MESSAGE_SEPARATOR = "--------------------------------------------------------------------------------";
+
+	public static void main(String[] args) {
+		new Logger().go();
+	}
+	
+	private void go() {
+	    clientThread = new ClientThread(TAGS, this);
+	    try {
+	    	outputFile = new PrintWriter(new File ("log.txt"));
+	    } catch (Exception ex) {
+	    	ex.printStackTrace();
+	    }
+	}
+	
+	@Override
+	public void receiveMessage(String message) {
+		outputFile.println(MESSAGE_SEPARATOR);
+		outputFile.println((new Date()).toString());
+		outputFile.println();
+		outputFile.println(message);
+		outputFile.flush();
+	}
+
+}]]></snapshot>
+  </Command>
+  <Command __id="8" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="171133" />
+  <Command __id="9" _type="SelectTextCommand" caretOffset="96" docEnd="155" docOffset="96" docStart="96" end="155" start="96" timestamp="201749" />
+  <DocumentChange __id="10" _type="Delete" docASTNodeCount="144" docActiveCodeLength="906" docExpressionCount="81" docLength="906" endLine="7" length="61" offset="94" repeat="2" startLine="5" timestamp="202248" timestamp2="202583">
+    <text><![CDATA[
+import hermes.MessageReceiver;
+import hermes.ClientThread;]]></text>
+  </DocumentChange>
+  <Command __id="11" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.DELETE_PREVIOUS" repeat="2" timestamp="202266" timestamp2="202598" />
+  <DocumentChange __id="14" _type="Insert" docASTNodeCount="154" docActiveCodeLength="962" docExpressionCount="90" docLength="962" length="56" offset="92" timestamp="225080">
+    <text><![CDATA[import hermes.messagebus.client.library.MessageReceiver;]]></text>
+  </DocumentChange>
+  <DocumentChange __id="15" _type="Insert" docASTNodeCount="154" docActiveCodeLength="966" docExpressionCount="90" docLength="966" length="4" offset="92" timestamp="225083">
+    <text><![CDATA[
+
+]]></text>
+  </DocumentChange>
+  <Command __id="16" _type="MoveCaretCommand" caretOffset="225" docOffset="225" timestamp="234279" />
+  <Command __id="17" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.COLUMN_PREVIOUS" timestamp="237289" />
+  <DocumentChange __id="18" _type="Delete" docASTNodeCount="154" docActiveCodeLength="960" docExpressionCount="90" docLength="960" endLine="11" length="6" offset="218" repeat="6" startLine="11" timestamp="237506" timestamp2="238474">
+    <text><![CDATA[Thread]]></text>
+  </DocumentChange>
+  <Command __id="19" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.DELETE_PREVIOUS" repeat="6" timestamp="237517" timestamp2="238487" />
+  <Command __id="30" _type="MoveCaretCommand" caretOffset="563" docOffset="563" timestamp="240401" />
+  <DocumentChange __id="31" _type="Delete" docASTNodeCount="154" docActiveCodeLength="954" docExpressionCount="90" docLength="954" endLine="21" length="6" offset="557" repeat="6" startLine="21" timestamp="240947" timestamp2="241653">
+    <text><![CDATA[Thread]]></text>
+  </DocumentChange>
+  <Command __id="32" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.DELETE_PREVIOUS" repeat="6" timestamp="240955" timestamp2="241666" />
+  <Command __id="43" _type="MoveCaretCommand" caretOffset="709" docOffset="709" timestamp="243288" />
+  <DocumentChange __id="44" _type="Delete" docASTNodeCount="154" docActiveCodeLength="950" docExpressionCount="90" docLength="950" endLine="6" length="4" offset="92" startLine="4" timestamp="245702">
+    <text><![CDATA[
+
+]]></text>
+  </DocumentChange>
+  <DocumentChange __id="45" _type="Insert" docASTNodeCount="154" docActiveCodeLength="952" docExpressionCount="90" docLength="952" length="2" offset="92" timestamp="245707">
+    <text><![CDATA[
+]]></text>
+  </DocumentChange>
+  <DocumentChange __id="46" _type="Insert" docASTNodeCount="164" docActiveCodeLength="999" docExpressionCount="99" docLength="999" length="47" offset="92" timestamp="245710">
+    <text><![CDATA[import hermes.messagebus.client.library.Client;]]></text>
+  </DocumentChange>

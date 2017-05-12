@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;hermes.messagebus.client.library.Server&apos; to &apos;Client&apos;&#x0D;&#x0A;- Original project: &apos;MessageBusClientLibraries&apos;&#x0D;&#x0A;- Original element: &apos;hermes.messagebus.client.library.Server&apos;&#x0D;&#x0A;- Renamed element: &apos;hermes.messagebus.client.library.Client&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;Server&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;hermes.messagebus.client.library{Server.java[Server" matchStrategy="1" name="Client" qualified="false" references="true" similarDeclarations="false" stamp="1492875660363" textual="false" version="1.0"/>
+</session>

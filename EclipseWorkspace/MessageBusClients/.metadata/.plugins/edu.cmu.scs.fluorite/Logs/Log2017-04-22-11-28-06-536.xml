@@ -1,0 +1,500 @@
+<Events startTimestamp="1492874886536" logVersion="0.11.0.201504031625" osName="Windows 10" osVersion="10.0" lineSeparator="\r\n" numMonitors="1" monitorBounds="[0, 0, 1500, 1000]">
+  <Command __id="0" _type="ShellBoundsCommand" bounds="[-6, -6, 1513, 973]" timestamp="553" />
+  <Command __id="1" _type="FileOpenCommand" docASTNodeCount="292" docActiveCodeLength="1801" docExpressionCount="162" docLength="1801" projectName="MessageBusClientLibraries" timestamp="765042">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\MessageBusClientLibraries\src\hermes\messagebus\client\library\Server.java]]></filePath>
+    <snapshot><![CDATA[package hermes.messagebus.client.library;
+
+import java.util.Scanner;
+
+public class Server {
+	
+	private static final String TAG_START = "<TAG>";
+	private static final String MSG_START = "<MSG>";
+	private static final String OUTPUT_START = "<OUTPUT>";
+
+	private InputThread inputThread;
+	
+	public Server(String tagsRegex, MessageReceiver messageReceiver) {
+		sendTags(tagsRegex);
+		inputThread = new InputThread(messageReceiver);
+		(new Thread(inputThread)).start();
+	}
+	
+	private void sendToCentral(String startString, String content) {
+		String fullMessage = startString + content;
+		System.out.println(fullMessage.length());
+		System.out.println(fullMessage);
+	}
+	
+	private void sendTags(String tagsRegex) {
+		sendToCentral(TAG_START, tagsRegex);
+	}
+	
+	public void sendMessage(String message) {
+		sendToCentral(MSG_START, message);
+	}
+	
+	public void output(String output) {
+		sendToCentral(OUTPUT_START, output);
+	}
+	
+	public void stop() {
+		inputThread.stop();
+	}
+	
+	
+	class InputThread implements Runnable {
+
+		private boolean running;
+		private MessageReceiver messageReceiver;
+		
+		public InputThread(MessageReceiver messageReceiver) {
+			running = true;
+			this.messageReceiver = messageReceiver;
+		}
+		
+		public void stop() {
+			running = false;
+		}
+		
+		public void run() {
+			Scanner scanner = new Scanner(System.in);
+			while(running) {
+				int lineLength = scanner.nextInt();
+				scanner.nextLine();
+				String next = "";
+				while(lineLength > 0) {
+					String nextLine = scanner.nextLine();
+					next += nextLine;
+					lineLength -= nextLine.length();
+					if(lineLength > 0) {
+						next += "\n";
+						lineLength--;
+					}
+				}
+				messageReceiver.receiveMessage(next);
+			}
+			scanner.close();
+		}
+		
+	}
+	
+}]]></snapshot>
+  </Command>
+  <Command __id="2" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="765411" />
+  <Command __id="3" _type="AssistCommand" assist_type="CONTENT_ASSIST" auto_activated="false" start_end="END" timestamp="773842" />
+  <Command __id="4" _type="AssistCommand" assist_type="QUICK_ASSIST" auto_activated="false" start_end="END" timestamp="773843" />
+  <Command __id="5" _type="EclipseCommand" commandID="org.eclipse.jdt.ui.edit.text.java.rename.element" timestamp="774240" />
+  <Command __id="6" _type="MoveCaretCommand" caretOffset="688" docOffset="688" timestamp="778913" />
+  <Command __id="7" _type="MoveCaretCommand" caretOffset="257" docOffset="257" timestamp="781545" />
+  <Command __id="8" _type="InsertStringCommand" timestamp="782231">
+    <data><![CDATA[]]></data>
+  </Command>
+  <Command __id="9" _type="InsertStringCommand" repeat="48" timestamp="782893" timestamp2="789195">
+    <data><![CDATA[private static final String MSG_SEND = "<SEND>";]]></data>
+  </Command>
+  <Command __id="57" _type="MoveCaretCommand" caretOffset="1001" docOffset="1001" timestamp="795132" />
+  <Command __id="58" _type="MoveCaretCommand" caretOffset="916" docOffset="916" timestamp="797146" />
+  <Command __id="59" _type="InsertStringCommand" timestamp="798776">
+    <data><![CDATA[]]></data>
+  </Command>
+  <Command __id="60" _type="InsertStringCommand" timestamp="799000">
+    <data><![CDATA[]]></data>
+  </Command>
+  <Command __id="61" _type="InsertStringCommand" repeat="12" timestamp="799612" timestamp2="801038">
+    <data><![CDATA[public void ]]></data>
+  </Command>
+  <Command __id="73" _type="InsertStringCommand" repeat="28" timestamp="808869" timestamp2="813423">
+    <data><![CDATA[remoteSend(String message) {]]></data>
+  </Command>
+  <Command __id="101" _type="InsertStringCommand" timestamp="814039">
+    <data><![CDATA[]]></data>
+  </Command>
+  <Command __id="102" _type="InsertStringCommand" repeat="33" timestamp="814979" timestamp2="821010">
+    <data><![CDATA[sendToCentral(MSG_SEND, message);]]></data>
+  </Command>
+  <Command __id="135" _type="EclipseCommand" commandID="org.eclipse.ui.file.saveAll" timestamp="825030" />
+  <Command __id="136" _type="FileOpenCommand" docASTNodeCount="134" docActiveCodeLength="767" docExpressionCount="81" docLength="767" projectName="ExampleClient" timestamp="835679">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\ExampleClient\src\example\Example.java]]></filePath>
+    <snapshot><![CDATA[package example;
+
+import org.json.JSONObject;
+
+import hermes.messagebus.client.library.MessageReceiver;
+import hermes.messagebus.client.library.Client;
+
+public class Example implements MessageReceiver {
+	
+	Client hermesServer;
+	private static final String TAGS = ".*";
+
+	public static void main(String[] args) {
+		new Example().go();
+	}
+	
+	private void go() {
+	    hermesServer = new Client(TAGS, this);
+	}
+	
+	@Override
+	public void receiveMessage(String message) {
+		JSONObject msgObj = new JSONObject(message);
+		String from = msgObj.getString("from");
+		JSONObject messageToSend = new JSONObject();
+		messageToSend.put("to", from);
+		messageToSend.put("status", "received");
+		hermesServer.sendMessage(messageToSend.toString());
+	}
+
+}]]></snapshot>
+  </Command>
+  <Command __id="137" _type="MoveCaretCommand" caretOffset="241" docOffset="350" timestamp="835856" />
+  <Command __id="138" _type="FileOpenCommand" docASTNodeCount="20" docActiveCodeLength="135" docExpressionCount="11" docLength="135" projectName="MessageBusClientLibraries" timestamp="847772">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\MessageBusClientLibraries\src\hermes\messagebus\client\library\MessageReceiver.java]]></filePath>
+    <snapshot><![CDATA[package hermes.messagebus.client.library;
+
+public interface MessageReceiver {
+
+	public void receiveMessage(String message);
+	
+}
+]]></snapshot>
+  </Command>
+  <Command __id="139" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="847926" />
+  <Command __id="140" _type="FileOpenCommand" docASTNodeCount="315" docActiveCodeLength="1939" docExpressionCount="172" docLength="1939" projectName="MessageBusClientLibraries" timestamp="849207">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\MessageBusClientLibraries\src\hermes\messagebus\client\library\Client.java]]></filePath>
+  </Command>
+  <Command __id="141" _type="MoveCaretCommand" caretOffset="999" docOffset="999" timestamp="849344" />
+  <Command __id="142" _type="MoveCaretCommand" caretOffset="944" docOffset="944" timestamp="858434" />
+  <DocumentChange __id="143" _type="Delete" docASTNodeCount="313" docActiveCodeLength="1929" docExpressionCount="171" docLength="1929" endLine="33" length="10" offset="934" repeat="10" startLine="33" timestamp="859499" timestamp2="860495">
+    <text><![CDATA[remoteSend]]></text>
+  </DocumentChange>
+  <Command __id="144" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.DELETE_PREVIOUS" repeat="10" timestamp="859522" timestamp2="860513" />
+  <DocumentChange __id="163" _type="Insert" docASTNodeCount="315" docActiveCodeLength="1948" docExpressionCount="172" docLength="1948" length="19" offset="934" repeat="19" timestamp="860650" timestamp2="863684">
+    <text><![CDATA[sendMessageToCleint]]></text>
+  </DocumentChange>
+  <Command __id="164" _type="InsertStringCommand" repeat="19" timestamp="860660" timestamp2="863713">
+    <data><![CDATA[sendMessageToCleint]]></data>
+  </Command>
+  <DocumentChange __id="201" _type="Delete" docASTNodeCount="315" docActiveCodeLength="1943" docExpressionCount="172" docLength="1943" endLine="33" length="5" offset="948" repeat="5" startLine="33" timestamp="863956" timestamp2="864677">
+    <text><![CDATA[leint]]></text>
+  </DocumentChange>
+  <Command __id="202" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.DELETE_PREVIOUS" repeat="5" timestamp="863981" timestamp2="864690" />
+  <DocumentChange __id="211" _type="Insert" docASTNodeCount="315" docActiveCodeLength="1948" docExpressionCount="172" docLength="1948" length="5" offset="948" repeat="5" timestamp="865219" timestamp2="865527">
+    <text><![CDATA[lient]]></text>
+  </DocumentChange>
+  <Command __id="212" _type="InsertStringCommand" repeat="5" timestamp="865243" timestamp2="865536">
+    <data><![CDATA[lient]]></data>
+  </Command>
+  <DocumentChange __id="221" _type="Delete" docASTNodeCount="315" docActiveCodeLength="1942" docExpressionCount="172" docLength="1942" endLine="33" length="6" offset="947" repeat="6" startLine="33" timestamp="867778" timestamp2="868483">
+    <text><![CDATA[Client]]></text>
+  </DocumentChange>
+  <Command __id="222" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.DELETE_PREVIOUS" repeat="6" timestamp="867785" timestamp2="868499" />
+  <DocumentChange __id="233" _type="Insert" docASTNodeCount="315" docActiveCodeLength="1946" docExpressionCount="172" docLength="1946" length="4" offset="947" repeat="4" timestamp="868864" timestamp2="869332">
+    <text><![CDATA[User]]></text>
+  </DocumentChange>
+  <Command __id="234" _type="InsertStringCommand" repeat="4" timestamp="868895" timestamp2="869353">
+    <data><![CDATA[User]]></data>
+  </Command>
+  <Command __id="241" _type="EclipseCommand" commandID="org.eclipse.ui.file.save" timestamp="872042" />
+  <Command __id="242" _type="FileOpenCommand" docASTNodeCount="134" docActiveCodeLength="767" docExpressionCount="81" docLength="767" projectName="ExampleClient" timestamp="874569">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\ExampleClient\src\example\Example.java]]></filePath>
+  </Command>
+  <Command __id="243" _type="MoveCaretCommand" caretOffset="241" docOffset="350" timestamp="874660" />
+  <Command __id="244" _type="MoveCaretCommand" caretOffset="622" docOffset="731" timestamp="877355" />
+  <DocumentChange __id="245" _type="Insert" docASTNodeCount="134" docActiveCodeLength="773" docExpressionCount="81" docLength="773" length="6" offset="731" repeat="6" timestamp="878029" timestamp2="878724">
+    <text><![CDATA[ToUser]]></text>
+  </DocumentChange>
+  <Command __id="246" _type="InsertStringCommand" repeat="6" timestamp="878034" timestamp2="878775">
+    <data><![CDATA[ToUser]]></data>
+  </Command>
+  <Command __id="257" _type="MoveCaretCommand" caretOffset="594" docOffset="703" timestamp="879964" />
+  <Command __id="258" _type="EclipseCommand" commandID="org.eclipse.ui.file.save" timestamp="881314" />
+  <Command __id="259" _type="EclipseCommand" commandID="org.eclipse.ui.file.export" timestamp="913278" />
+  <Command __id="260" _type="ShellBoundsCommand" bounds="[0, 0, 0, 0]" timestamp="914736" />
+  <Command __id="261" _type="ShellBoundsCommand" bounds="[-6, -6, 1513, 973]" timestamp="1479228" />
+  <Command __id="262" _type="SelectTextCommand" caretOffset="222" docEnd="234" docOffset="222" docStart="222" end="234" start="222" timestamp="2855398" />
+  <Command __id="263" _type="EclipseCommand" commandID="org.eclipse.jdt.ui.edit.text.java.rename.element" timestamp="2859085" />
+  <DocumentChange __id="264" _type="Replace" docASTNodeCount="134" docActiveCodeLength="762" docExpressionCount="81" docLength="762" endLine="9" insertionLength="1" int_docASTNodeCount="129" int_docActiveCodeLength="761" int_docExpressionCount="79" int_docLength="761" length="12" offset="222" startLine="9" timestamp="2859690">
+    <deletedText><![CDATA[hermesServer]]></deletedText>
+    <insertedText><![CDATA[c]]></insertedText>
+  </DocumentChange>
+  <DocumentChange __id="265" _type="Replace" docASTNodeCount="134" docActiveCodeLength="751" docExpressionCount="81" docLength="751" endLine="27" insertionLength="1" int_docASTNodeCount="133" int_docActiveCodeLength="750" int_docExpressionCount="80" int_docLength="750" length="12" offset="696" startLine="27" timestamp="2859720">
+    <deletedText><![CDATA[hermesServer]]></deletedText>
+    <insertedText><![CDATA[c]]></insertedText>
+  </DocumentChange>
+  <DocumentChange __id="266" _type="Replace" docASTNodeCount="134" docActiveCodeLength="740" docExpressionCount="81" docLength="740" endLine="17" insertionLength="1" int_docASTNodeCount="132" int_docActiveCodeLength="739" int_docExpressionCount="79" int_docLength="739" length="12" offset="371" startLine="17" timestamp="2859727">
+    <deletedText><![CDATA[hermesServer]]></deletedText>
+    <insertedText><![CDATA[c]]></insertedText>
+  </DocumentChange>
+  <Command __id="267" _type="InsertStringCommand" repeat="3" timestamp="2859736" timestamp2="2860280">
+    <data><![CDATA[cle]]></data>
+  </Command>
+  <DocumentChange __id="268" _type="Insert" docASTNodeCount="134" docActiveCodeLength="741" docExpressionCount="81" docLength="741" length="1" offset="223" timestamp="2859816">
+    <text><![CDATA[l]]></text>
+  </DocumentChange>
+  <DocumentChange __id="269" _type="Insert" docASTNodeCount="134" docActiveCodeLength="742" docExpressionCount="81" docLength="742" length="1" offset="687" timestamp="2859819">
+    <text><![CDATA[l]]></text>
+  </DocumentChange>
+  <DocumentChange __id="270" _type="Insert" docASTNodeCount="134" docActiveCodeLength="743" docExpressionCount="81" docLength="743" length="1" offset="373" timestamp="2859822">
+    <text><![CDATA[l]]></text>
+  </DocumentChange>
+  <DocumentChange __id="272" _type="Insert" docASTNodeCount="134" docActiveCodeLength="744" docExpressionCount="81" docLength="744" length="1" offset="224" timestamp="2860268">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="273" _type="Insert" docASTNodeCount="134" docActiveCodeLength="745" docExpressionCount="81" docLength="745" length="1" offset="690" timestamp="2860271">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="274" _type="Insert" docASTNodeCount="134" docActiveCodeLength="746" docExpressionCount="81" docLength="746" length="1" offset="375" timestamp="2860275">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="276" _type="Delete" docASTNodeCount="134" docActiveCodeLength="745" docExpressionCount="81" docLength="745" endLine="9" length="1" offset="224" startLine="9" timestamp="2860575">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="277" _type="Delete" docASTNodeCount="134" docActiveCodeLength="744" docExpressionCount="81" docLength="744" endLine="27" length="1" offset="690" startLine="27" timestamp="2860579">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="278" _type="Delete" docASTNodeCount="134" docActiveCodeLength="743" docExpressionCount="81" docLength="743" endLine="17" length="1" offset="374" startLine="17" timestamp="2860582">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <Command __id="279" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.DELETE_PREVIOUS" timestamp="2860584" />
+  <DocumentChange __id="280" _type="Insert" docASTNodeCount="134" docActiveCodeLength="744" docExpressionCount="81" docLength="744" length="1" offset="224" timestamp="2860789">
+    <text><![CDATA[i]]></text>
+  </DocumentChange>
+  <DocumentChange __id="281" _type="Insert" docASTNodeCount="134" docActiveCodeLength="745" docExpressionCount="81" docLength="745" length="1" offset="690" timestamp="2860798">
+    <text><![CDATA[i]]></text>
+  </DocumentChange>
+  <DocumentChange __id="282" _type="Insert" docASTNodeCount="134" docActiveCodeLength="746" docExpressionCount="81" docLength="746" length="1" offset="375" timestamp="2860804">
+    <text><![CDATA[i]]></text>
+  </DocumentChange>
+  <Command __id="283" _type="InsertStringCommand" repeat="10" timestamp="2860811" timestamp2="2861875">
+    <data><![CDATA[ientThread]]></data>
+  </Command>
+  <DocumentChange __id="284" _type="Insert" docASTNodeCount="134" docActiveCodeLength="747" docExpressionCount="81" docLength="747" length="1" offset="225" timestamp="2860855">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="285" _type="Insert" docASTNodeCount="134" docActiveCodeLength="748" docExpressionCount="81" docLength="748" length="1" offset="693" timestamp="2860859">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="286" _type="Insert" docASTNodeCount="134" docActiveCodeLength="749" docExpressionCount="81" docLength="749" length="1" offset="377" timestamp="2860864">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="288" _type="Insert" docASTNodeCount="134" docActiveCodeLength="750" docExpressionCount="81" docLength="750" length="1" offset="226" timestamp="2860985">
+    <text><![CDATA[n]]></text>
+  </DocumentChange>
+  <DocumentChange __id="289" _type="Insert" docASTNodeCount="134" docActiveCodeLength="751" docExpressionCount="81" docLength="751" length="1" offset="696" timestamp="2860988">
+    <text><![CDATA[n]]></text>
+  </DocumentChange>
+  <DocumentChange __id="290" _type="Insert" docASTNodeCount="134" docActiveCodeLength="752" docExpressionCount="81" docLength="752" length="1" offset="379" timestamp="2860991">
+    <text><![CDATA[n]]></text>
+  </DocumentChange>
+  <DocumentChange __id="292" _type="Insert" docASTNodeCount="134" docActiveCodeLength="753" docExpressionCount="81" docLength="753" length="1" offset="227" timestamp="2861035">
+    <text><![CDATA[t]]></text>
+  </DocumentChange>
+  <DocumentChange __id="293" _type="Insert" docASTNodeCount="134" docActiveCodeLength="754" docExpressionCount="81" docLength="754" length="1" offset="699" timestamp="2861038">
+    <text><![CDATA[t]]></text>
+  </DocumentChange>
+  <DocumentChange __id="294" _type="Insert" docASTNodeCount="134" docActiveCodeLength="755" docExpressionCount="81" docLength="755" length="1" offset="381" timestamp="2861041">
+    <text><![CDATA[t]]></text>
+  </DocumentChange>
+  <DocumentChange __id="296" _type="Insert" docASTNodeCount="134" docActiveCodeLength="756" docExpressionCount="81" docLength="756" length="1" offset="228" timestamp="2861357">
+    <text><![CDATA[T]]></text>
+  </DocumentChange>
+  <DocumentChange __id="297" _type="Insert" docASTNodeCount="134" docActiveCodeLength="757" docExpressionCount="81" docLength="757" length="1" offset="702" timestamp="2861362">
+    <text><![CDATA[T]]></text>
+  </DocumentChange>
+  <DocumentChange __id="298" _type="Insert" docASTNodeCount="134" docActiveCodeLength="758" docExpressionCount="81" docLength="758" length="1" offset="383" timestamp="2861366">
+    <text><![CDATA[T]]></text>
+  </DocumentChange>
+  <DocumentChange __id="300" _type="Insert" docASTNodeCount="134" docActiveCodeLength="759" docExpressionCount="81" docLength="759" length="1" offset="229" timestamp="2861434">
+    <text><![CDATA[h]]></text>
+  </DocumentChange>
+  <DocumentChange __id="301" _type="Insert" docASTNodeCount="134" docActiveCodeLength="760" docExpressionCount="81" docLength="760" length="1" offset="705" timestamp="2861437">
+    <text><![CDATA[h]]></text>
+  </DocumentChange>
+  <DocumentChange __id="302" _type="Insert" docASTNodeCount="134" docActiveCodeLength="761" docExpressionCount="81" docLength="761" length="1" offset="385" timestamp="2861440">
+    <text><![CDATA[h]]></text>
+  </DocumentChange>
+  <DocumentChange __id="304" _type="Insert" docASTNodeCount="134" docActiveCodeLength="762" docExpressionCount="81" docLength="762" length="1" offset="230" timestamp="2861569">
+    <text><![CDATA[r]]></text>
+  </DocumentChange>
+  <DocumentChange __id="305" _type="Insert" docASTNodeCount="134" docActiveCodeLength="763" docExpressionCount="81" docLength="763" length="1" offset="708" timestamp="2861573">
+    <text><![CDATA[r]]></text>
+  </DocumentChange>
+  <DocumentChange __id="306" _type="Insert" docASTNodeCount="134" docActiveCodeLength="764" docExpressionCount="81" docLength="764" length="1" offset="387" timestamp="2861577">
+    <text><![CDATA[r]]></text>
+  </DocumentChange>
+  <DocumentChange __id="308" _type="Insert" docASTNodeCount="134" docActiveCodeLength="765" docExpressionCount="81" docLength="765" length="1" offset="231" timestamp="2861635">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="309" _type="Insert" docASTNodeCount="134" docActiveCodeLength="766" docExpressionCount="81" docLength="766" length="1" offset="711" timestamp="2861639">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="310" _type="Insert" docASTNodeCount="134" docActiveCodeLength="767" docExpressionCount="81" docLength="767" length="1" offset="389" timestamp="2861642">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="312" _type="Insert" docASTNodeCount="134" docActiveCodeLength="768" docExpressionCount="81" docLength="768" length="1" offset="232" timestamp="2861705">
+    <text><![CDATA[a]]></text>
+  </DocumentChange>
+  <DocumentChange __id="313" _type="Insert" docASTNodeCount="134" docActiveCodeLength="769" docExpressionCount="81" docLength="769" length="1" offset="714" timestamp="2861709">
+    <text><![CDATA[a]]></text>
+  </DocumentChange>
+  <DocumentChange __id="314" _type="Insert" docASTNodeCount="134" docActiveCodeLength="770" docExpressionCount="81" docLength="770" length="1" offset="391" timestamp="2861711">
+    <text><![CDATA[a]]></text>
+  </DocumentChange>
+  <DocumentChange __id="316" _type="Insert" docASTNodeCount="134" docActiveCodeLength="771" docExpressionCount="81" docLength="771" length="1" offset="233" timestamp="2861861">
+    <text><![CDATA[d]]></text>
+  </DocumentChange>
+  <DocumentChange __id="317" _type="Insert" docASTNodeCount="134" docActiveCodeLength="772" docExpressionCount="81" docLength="772" length="1" offset="717" timestamp="2861866">
+    <text><![CDATA[d]]></text>
+  </DocumentChange>
+  <DocumentChange __id="318" _type="Insert" docASTNodeCount="134" docActiveCodeLength="773" docExpressionCount="81" docLength="773" length="1" offset="393" timestamp="2861870">
+    <text><![CDATA[d]]></text>
+  </DocumentChange>
+  <Command __id="320" _type="InsertStringCommand" timestamp="2863376">
+    <data><![CDATA[]]></data>
+  </Command>
+  <DocumentChange __id="321" _type="Delete" docASTNodeCount="134" docActiveCodeLength="772" docExpressionCount="81" docLength="772" endLine="17" length="1" offset="393" startLine="17" timestamp="2863438">
+    <text><![CDATA[d]]></text>
+  </DocumentChange>
+  <DocumentChange __id="322" _type="Delete" docASTNodeCount="134" docActiveCodeLength="771" docExpressionCount="81" docLength="771" endLine="27" length="1" offset="717" startLine="27" timestamp="2863441">
+    <text><![CDATA[d]]></text>
+  </DocumentChange>
+  <DocumentChange __id="323" _type="Delete" docASTNodeCount="134" docActiveCodeLength="770" docExpressionCount="81" docLength="770" endLine="9" length="1" offset="233" startLine="9" timestamp="2863444">
+    <text><![CDATA[d]]></text>
+  </DocumentChange>
+  <DocumentChange __id="324" _type="Delete" docASTNodeCount="134" docActiveCodeLength="769" docExpressionCount="81" docLength="769" endLine="17" length="1" offset="391" startLine="17" timestamp="2863446">
+    <text><![CDATA[a]]></text>
+  </DocumentChange>
+  <DocumentChange __id="325" _type="Delete" docASTNodeCount="134" docActiveCodeLength="768" docExpressionCount="81" docLength="768" endLine="27" length="1" offset="714" startLine="27" timestamp="2863448">
+    <text><![CDATA[a]]></text>
+  </DocumentChange>
+  <DocumentChange __id="326" _type="Delete" docASTNodeCount="134" docActiveCodeLength="767" docExpressionCount="81" docLength="767" endLine="9" length="1" offset="232" startLine="9" timestamp="2863450">
+    <text><![CDATA[a]]></text>
+  </DocumentChange>
+  <DocumentChange __id="327" _type="Delete" docASTNodeCount="134" docActiveCodeLength="766" docExpressionCount="81" docLength="766" endLine="17" length="1" offset="389" startLine="17" timestamp="2863451">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="328" _type="Delete" docASTNodeCount="134" docActiveCodeLength="765" docExpressionCount="81" docLength="765" endLine="27" length="1" offset="711" startLine="27" timestamp="2863453">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="329" _type="Delete" docASTNodeCount="134" docActiveCodeLength="764" docExpressionCount="81" docLength="764" endLine="9" length="1" offset="231" startLine="9" timestamp="2863454">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="330" _type="Delete" docASTNodeCount="134" docActiveCodeLength="763" docExpressionCount="81" docLength="763" endLine="17" length="1" offset="387" startLine="17" timestamp="2863456">
+    <text><![CDATA[r]]></text>
+  </DocumentChange>
+  <DocumentChange __id="331" _type="Delete" docASTNodeCount="134" docActiveCodeLength="762" docExpressionCount="81" docLength="762" endLine="27" length="1" offset="708" startLine="27" timestamp="2863459">
+    <text><![CDATA[r]]></text>
+  </DocumentChange>
+  <DocumentChange __id="332" _type="Delete" docASTNodeCount="134" docActiveCodeLength="761" docExpressionCount="81" docLength="761" endLine="9" length="1" offset="230" startLine="9" timestamp="2863460">
+    <text><![CDATA[r]]></text>
+  </DocumentChange>
+  <DocumentChange __id="333" _type="Delete" docASTNodeCount="134" docActiveCodeLength="760" docExpressionCount="81" docLength="760" endLine="17" length="1" offset="385" startLine="17" timestamp="2863462">
+    <text><![CDATA[h]]></text>
+  </DocumentChange>
+  <DocumentChange __id="334" _type="Delete" docASTNodeCount="134" docActiveCodeLength="759" docExpressionCount="81" docLength="759" endLine="27" length="1" offset="705" startLine="27" timestamp="2863464">
+    <text><![CDATA[h]]></text>
+  </DocumentChange>
+  <DocumentChange __id="335" _type="Delete" docASTNodeCount="134" docActiveCodeLength="758" docExpressionCount="81" docLength="758" endLine="9" length="1" offset="229" startLine="9" timestamp="2863467">
+    <text><![CDATA[h]]></text>
+  </DocumentChange>
+  <DocumentChange __id="336" _type="Delete" docASTNodeCount="134" docActiveCodeLength="757" docExpressionCount="81" docLength="757" endLine="17" length="1" offset="383" startLine="17" timestamp="2863469">
+    <text><![CDATA[T]]></text>
+  </DocumentChange>
+  <DocumentChange __id="337" _type="Delete" docASTNodeCount="134" docActiveCodeLength="756" docExpressionCount="81" docLength="756" endLine="27" length="1" offset="702" startLine="27" timestamp="2863471">
+    <text><![CDATA[T]]></text>
+  </DocumentChange>
+  <DocumentChange __id="338" _type="Delete" docASTNodeCount="134" docActiveCodeLength="755" docExpressionCount="81" docLength="755" endLine="9" length="1" offset="228" startLine="9" timestamp="2863473">
+    <text><![CDATA[T]]></text>
+  </DocumentChange>
+  <DocumentChange __id="339" _type="Delete" docASTNodeCount="134" docActiveCodeLength="754" docExpressionCount="81" docLength="754" endLine="17" length="1" offset="381" startLine="17" timestamp="2863476">
+    <text><![CDATA[t]]></text>
+  </DocumentChange>
+  <DocumentChange __id="340" _type="Delete" docASTNodeCount="134" docActiveCodeLength="753" docExpressionCount="81" docLength="753" endLine="27" length="1" offset="699" startLine="27" timestamp="2863478">
+    <text><![CDATA[t]]></text>
+  </DocumentChange>
+  <DocumentChange __id="341" _type="Delete" docASTNodeCount="134" docActiveCodeLength="752" docExpressionCount="81" docLength="752" endLine="9" length="1" offset="227" startLine="9" timestamp="2863480">
+    <text><![CDATA[t]]></text>
+  </DocumentChange>
+  <DocumentChange __id="342" _type="Delete" docASTNodeCount="134" docActiveCodeLength="751" docExpressionCount="81" docLength="751" endLine="17" length="1" offset="379" startLine="17" timestamp="2863483">
+    <text><![CDATA[n]]></text>
+  </DocumentChange>
+  <DocumentChange __id="343" _type="Delete" docASTNodeCount="134" docActiveCodeLength="750" docExpressionCount="81" docLength="750" endLine="27" length="1" offset="696" startLine="27" timestamp="2863485">
+    <text><![CDATA[n]]></text>
+  </DocumentChange>
+  <DocumentChange __id="344" _type="Delete" docASTNodeCount="134" docActiveCodeLength="749" docExpressionCount="81" docLength="749" endLine="9" length="1" offset="226" startLine="9" timestamp="2863487">
+    <text><![CDATA[n]]></text>
+  </DocumentChange>
+  <DocumentChange __id="345" _type="Delete" docASTNodeCount="134" docActiveCodeLength="748" docExpressionCount="81" docLength="748" endLine="17" length="1" offset="377" startLine="17" timestamp="2863489">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="346" _type="Delete" docASTNodeCount="134" docActiveCodeLength="747" docExpressionCount="81" docLength="747" endLine="27" length="1" offset="693" startLine="27" timestamp="2863491">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="347" _type="Delete" docASTNodeCount="134" docActiveCodeLength="746" docExpressionCount="81" docLength="746" endLine="9" length="1" offset="225" startLine="9" timestamp="2863494">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="348" _type="Delete" docASTNodeCount="134" docActiveCodeLength="745" docExpressionCount="81" docLength="745" endLine="17" length="1" offset="375" startLine="17" timestamp="2863497">
+    <text><![CDATA[i]]></text>
+  </DocumentChange>
+  <DocumentChange __id="349" _type="Delete" docASTNodeCount="134" docActiveCodeLength="744" docExpressionCount="81" docLength="744" endLine="27" length="1" offset="690" startLine="27" timestamp="2863499">
+    <text><![CDATA[i]]></text>
+  </DocumentChange>
+  <DocumentChange __id="350" _type="Delete" docASTNodeCount="134" docActiveCodeLength="743" docExpressionCount="81" docLength="743" endLine="9" length="1" offset="224" startLine="9" timestamp="2863501">
+    <text><![CDATA[i]]></text>
+  </DocumentChange>
+  <DocumentChange __id="351" _type="Insert" docASTNodeCount="134" docActiveCodeLength="744" docExpressionCount="81" docLength="744" length="1" offset="374" timestamp="2863503">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="352" _type="Insert" docASTNodeCount="134" docActiveCodeLength="745" docExpressionCount="81" docLength="745" length="1" offset="690" timestamp="2863506">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="353" _type="Insert" docASTNodeCount="134" docActiveCodeLength="746" docExpressionCount="81" docLength="746" length="1" offset="224" timestamp="2863509">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="354" _type="Delete" docASTNodeCount="134" docActiveCodeLength="745" docExpressionCount="81" docLength="745" endLine="17" length="1" offset="375" startLine="17" timestamp="2863511">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="355" _type="Delete" docASTNodeCount="134" docActiveCodeLength="744" docExpressionCount="81" docLength="744" endLine="27" length="1" offset="690" startLine="27" timestamp="2863513">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="356" _type="Delete" docASTNodeCount="134" docActiveCodeLength="743" docExpressionCount="81" docLength="743" endLine="9" length="1" offset="224" startLine="9" timestamp="2863516">
+    <text><![CDATA[e]]></text>
+  </DocumentChange>
+  <DocumentChange __id="357" _type="Delete" docASTNodeCount="134" docActiveCodeLength="742" docExpressionCount="81" docLength="742" endLine="17" length="1" offset="373" startLine="17" timestamp="2863518">
+    <text><![CDATA[l]]></text>
+  </DocumentChange>
+  <DocumentChange __id="358" _type="Delete" docASTNodeCount="134" docActiveCodeLength="741" docExpressionCount="81" docLength="741" endLine="27" length="1" offset="687" startLine="27" timestamp="2863521">
+    <text><![CDATA[l]]></text>
+  </DocumentChange>
+  <DocumentChange __id="359" _type="Delete" docASTNodeCount="134" docActiveCodeLength="740" docExpressionCount="81" docLength="740" endLine="9" length="1" offset="223" startLine="9" timestamp="2863523">
+    <text><![CDATA[l]]></text>
+  </DocumentChange>
+  <DocumentChange __id="360" _type="Replace" docASTNodeCount="134" docActiveCodeLength="751" docExpressionCount="81" docLength="751" endLine="17" insertionLength="12" int_docASTNodeCount="132" int_docActiveCodeLength="739" int_docExpressionCount="79" int_docLength="739" length="1" offset="371" startLine="17" timestamp="2863530">
+    <deletedText><![CDATA[c]]></deletedText>
+    <insertedText><![CDATA[hermesServer]]></insertedText>
+  </DocumentChange>
+  <DocumentChange __id="361" _type="Replace" docASTNodeCount="134" docActiveCodeLength="762" docExpressionCount="81" docLength="762" endLine="27" insertionLength="12" int_docASTNodeCount="133" int_docActiveCodeLength="750" int_docExpressionCount="80" int_docLength="750" length="1" offset="696" startLine="27" timestamp="2863537">
+    <deletedText><![CDATA[c]]></deletedText>
+    <insertedText><![CDATA[hermesServer]]></insertedText>
+  </DocumentChange>
+  <DocumentChange __id="362" _type="Replace" docASTNodeCount="134" docActiveCodeLength="773" docExpressionCount="81" docLength="773" endLine="9" insertionLength="12" int_docASTNodeCount="129" int_docActiveCodeLength="761" int_docExpressionCount="79" int_docLength="761" length="1" offset="222" startLine="9" timestamp="2863543">
+    <deletedText><![CDATA[c]]></deletedText>
+    <insertedText><![CDATA[hermesServer]]></insertedText>
+  </DocumentChange>
+  <DocumentChange __id="363" _type="Replace" docASTNodeCount="134" docActiveCodeLength="773" docExpressionCount="81" docLength="773" endLine="27" insertionLength="12" int_docASTNodeCount="133" int_docActiveCodeLength="761" int_docExpressionCount="80" int_docLength="761" length="12" offset="707" startLine="27" timestamp="2863838">
+    <deletedText><![CDATA[hermesServer]]></deletedText>
+    <insertedText><![CDATA[clientThread]]></insertedText>
+  </DocumentChange>
+  <DocumentChange __id="364" _type="Replace" docASTNodeCount="134" docActiveCodeLength="773" docExpressionCount="81" docLength="773" endLine="17" insertionLength="12" int_docASTNodeCount="132" int_docActiveCodeLength="761" int_docExpressionCount="79" int_docLength="761" length="12" offset="382" startLine="17" timestamp="2863847">
+    <deletedText><![CDATA[hermesServer]]></deletedText>
+    <insertedText><![CDATA[clientThread]]></insertedText>
+  </DocumentChange>
+  <DocumentChange __id="365" _type="Replace" docASTNodeCount="134" docActiveCodeLength="773" docExpressionCount="81" docLength="773" endLine="9" insertionLength="12" int_docASTNodeCount="129" int_docActiveCodeLength="761" int_docExpressionCount="79" int_docLength="761" length="12" offset="222" startLine="9" timestamp="2863853">
+    <deletedText><![CDATA[hermesServer]]></deletedText>
+    <insertedText><![CDATA[clientThread]]></insertedText>
+  </DocumentChange>
+  <Command __id="366" _type="MoveCaretCommand" caretOffset="770" docOffset="770" timestamp="2864917" />
+  <Command __id="367" _type="ShellBoundsCommand" bounds="[-6, -6, 1513, 973]" timestamp="31494757" />
+</Events>

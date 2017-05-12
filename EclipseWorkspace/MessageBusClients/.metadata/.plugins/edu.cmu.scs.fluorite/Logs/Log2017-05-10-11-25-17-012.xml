@@ -1,0 +1,481 @@
+<Events startTimestamp="1494429917012" logVersion="0.11.0.201504031625" osName="Windows 10" osVersion="10.0" lineSeparator="\r\n" numMonitors="1" monitorBounds="[0, 0, 1500, 1000]">
+  <Command __id="0" _type="ShellBoundsCommand" bounds="[450, 147, 600, 500]" timestamp="18" />
+  <Command __id="1" _type="FileOpenCommand" docASTNodeCount="149" docActiveCodeLength="1012" docExpressionCount="102" docLength="1101" projectName="CheckstyleWebCoder" timestamp="108293">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\CheckstyleWebCoder\src\main\ACheckStyleRunner.java]]></filePath>
+    <snapshot><![CDATA[package main;
+
+import java.io.File;
+
+import framework.execution.ProcessRunner;
+import grader.basics.execution.BasicProjectExecution;
+import grader.basics.execution.Runner;
+import grader.basics.execution.RunningProject;
+import grader.sakai.project.ASakaiProjectDatabase;
+
+public class ACheckStyleRunner {
+	public RunningProject checkStyle(String aSourceFileFlder) {
+		String username = System.getProperty("user.name");
+		String pathname = "Ram\\unc_checks_401_f16_a1.xml";
+		pathname = pathname.replace("\\","/");
+		String aConfigurationFileName = pathname;
+
+		String windowsName = aSourceFileFlder;
+
+		String[] command = {"java", "com.puppycrawl.tools.checkstyle.Main", "-c",  aConfigurationFileName ,   windowsName };
+
+		String[] args = {};
+		Runner processRunner = new ProcessRunner(new File("."));
+		//        RunningProject aReturnValue = processRunner.run(null, command, "", args, 2000);
+		RunningProject aReturnValue = processRunner.run(null, command, "", args, BasicProjectExecution.PROCESS_TIME_OUT*10);
+
+		aReturnValue.await();
+		return aReturnValue;
+
+
+	}
+}
+
+]]></snapshot>
+  </Command>
+  <Command __id="2" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="108510" />
+  <Command __id="3" _type="FileOpenCommand" docASTNodeCount="1070" docActiveCodeLength="5881" docExpressionCount="716" docLength="6290" projectName="CheckstyleWebCoder" timestamp="120163">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\CheckstyleWebCoder\src\main\AFileMessage.java]]></filePath>
+    <snapshot><![CDATA[package main;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import org.json.JSONException;
+import org.json.JSONObject;
+//import checkstyle.clientmessage.Client;
+//import checkstyle.clientmessage.MessageReceiver;
+import hermes.messagebus.client.library.MessageReceiver;
+import hermes.messagebus.client.library.Client;
+
+public class AFileMessage {
+	
+	Client clientThread;
+	private static final String TAGS = ".*";
+
+	public static void main(String[] args) {
+		new AFileMessage().go();
+	}
+	
+	private void go() {
+	    clientThread = new Client(TAGS, (MessageReceiver) this);
+	}
+	
+
+	public void receiveMessage(String message) throws JSONException {
+		JSONObject msgObj = new JSONObject(message);
+		String from = msgObj.getString("from");
+		String editorContents = msgObj.getString("editorContents");
+		
+		ArrayList styleCheck = classSeparator(from, editorContents);
+		
+		JSONObject messageToSend = new JSONObject();
+		messageToSend.put("to", from);
+		for(int i = 0; i < styleCheck.size(); i++){
+			messageToSend.put("result", styleCheck.get(i));
+			clientThread.sendMessageToUser(messageToSend.toString());
+		}
+	}
+
+	static void receiveMessage(String aUserName, String aText){
+		BufferedWriter bw = null;
+		FileWriter fw = null;
+		String osName = System.getProperty("os.name");
+		String username = System.getProperty("user.name");
+		String pathname = "";
+		
+		ArrayList<String> className = publicClassChecker(aText);
+		ArrayList<File> filepathName = new ArrayList<File>();
+		
+		if(osName.contains("Mac")){
+			//Creating the folder with the name given by the string, aUserName
+			pathname = "/Users/" + username + "/Desktop" + aUserName;
+			File folder = new File(pathname);
+			for(int i = 0; i < className.size(); i++){
+				String filepath = pathname + "/" + className.get(i);
+				File codeFile = new File(pathname);
+				filepathName.add(codeFile);
+			}
+
+			try{
+				if(folder.exists()){
+					System.out.println("Folder " + folder.getName() + " already exists");
+				}
+				else{
+					folder.mkdir();
+					System.out.println("Folder " + folder.getName() + " was created!");
+				}
+			}catch (Exception e){
+				e.printStackTrace();
+			}
+
+			try{
+				for(int i = 0; i < className.size(); i++){
+					//this is used to create the file (if it doesn't exist already in that folder)
+					if(filepathName.get(i).createNewFile()){
+						System.out.println("File " + filepathName.get(i).getName() + " was created!");
+					}
+					else{
+						System.out.println("File " + filepathName.get(i).getName() + " already exists");
+					}
+				}
+			}catch (Exception e){
+				e.printStackTrace();
+			}
+
+			try {
+				for(int i = 0; i < className.size(); i++){
+					//This is writing the string aText into the file
+					fw = new FileWriter(filepathName.get(i).getAbsoluteFile(), false);
+					bw = new BufferedWriter(fw);
+	
+					bw.write(aText);
+				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+
+				try {
+
+					if (bw != null)
+						bw.close();
+
+					if (fw != null)
+						fw.close();
+
+				} catch (IOException ex) {
+
+					ex.printStackTrace();
+				}
+			}
+			
+			ACheckStyleRunner styleChecker = new ACheckStyleRunner();
+			for(int i = 0; i < className.size(); i++){
+				styleChecker.checkStyle(pathname);
+			}
+			
+		}else if(osName.contains("Windows")){
+			pathname = "C:\\Users\\" + username + "\\Desktop\\" + aUserName;
+			pathname = pathname.replace("\\","/");
+			File folder = new File(pathname);
+			for(int i = 0; i < className.size(); i++){
+				String filePathName = pathname + "\\" + className.get(i);
+				filePathName = filePathName.replace("\\", "/");
+				File codeFile = new File(filePathName);
+				filepathName.add(codeFile);
+			}
+			
+			try{
+				if(folder.exists()){
+					System.out.println("Folder " + folder.getName() + " already exists");
+				}
+				else{
+					folder.mkdir();
+					System.out.println("Folder " + folder.getName() + " was created!");
+				}
+			}catch (Exception e){
+				e.printStackTrace();
+			}
+
+			try{
+				for(int i = 0; i < className.size(); i++){
+					//this is used to create the file (if it doesn't exist already in that folder)
+					if(filepathName.get(i).createNewFile()){
+						System.out.println("File " + filepathName.get(i).getName() + " was created!");
+					}
+					else{
+						System.out.println("File " + filepathName.get(i).getName() + " already exists");
+					}
+				}
+			}catch (Exception e){
+				e.printStackTrace();
+			}
+
+			try {
+				for(int i = 0; i < className.size(); i++){
+					//This is writing the string aText into the file
+					fw = new FileWriter(filepathName.get(i).getAbsoluteFile(), false);
+					bw = new BufferedWriter(fw);
+	
+					bw.write(aText);
+				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+
+				try {
+
+					if (bw != null)
+						bw.close();
+
+					if (fw != null)
+						fw.close();
+
+				} catch (IOException ex) {
+
+					ex.printStackTrace();
+				}
+			}
+			ACheckStyleRunner styleChecker = new ACheckStyleRunner();
+			for(int i = 0; i < className.size(); i++){
+				styleChecker.checkStyle(pathname);
+			}
+		}
+		
+	}
+	
+	static ArrayList publicClassChecker(String aText){
+		ArrayList<String> className = new ArrayList<String>();
+		int numPublicClasses = 0;
+		String nameClass = "";
+		for(int i = 12; i < aText.length(); i++){
+			String name = aText.substring(i - 12, i);
+			if(name.equals("public class")){
+				numPublicClasses++;
+				int j = i + 1;
+				while(aText.charAt(j) != '{' && aText.charAt(j) != ' '){
+					j++;
+				}
+				nameClass = aText.substring(i + 1, j);
+				className.add(nameClass);
+				i = j + 1;
+			}
+		}
+		return className;
+	}
+
+	static ArrayList classSeparator(String aUserName, String aText){
+		ArrayList<String> codeText = new ArrayList<String>();
+		String[] textCode = aText.split("(?=public class)");
+		int numSplits = textCode.length;
+		for(int i = 0; i < numSplits; i++){
+			codeText.add(textCode[i]);
+		}
+		for(int i = 1; i < numSplits; i++){
+			String text = textCode[0] + textCode[i];
+			receiveMessage(aUserName, text);
+		}
+		
+		return codeText;		
+	}
+}
+
+
+]]></snapshot>
+  </Command>
+  <Command __id="4" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="120416" />
+  <Command __id="5" _type="CopyCommand" timestamp="133756" />
+  <Command __id="6" _type="PasteCommand" timestamp="138255" />
+  <Command __id="7" _type="FileOpenCommand" docASTNodeCount="149" docActiveCodeLength="1012" docExpressionCount="102" docLength="1101" projectName="CheckstyleWebCoder" timestamp="162192">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\CheckstyleWebCoder\src\main\ACheckStyleRunner.java]]></filePath>
+  </Command>
+  <Command __id="8" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="162326" />
+  <Command __id="9" _type="FileOpenCommand" docASTNodeCount="1070" docActiveCodeLength="5881" docExpressionCount="716" docLength="6290" projectName="CheckstyleWebCoder" timestamp="164400">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\CheckstyleWebCoder\src\main\AFileMessage.java]]></filePath>
+  </Command>
+  <Command __id="10" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="164508" />
+  <Command __id="11" _type="SelectTextCommand" caretOffset="1120" docEnd="1229" docOffset="1172" docStart="1172" end="1177" start="1120" timestamp="182283" />
+  <Command __id="12" _type="MoveCaretCommand" caretOffset="1186" docOffset="1238" timestamp="187545" />
+  <Command __id="13" _type="FileOpenCommand" docASTNodeCount="315" docActiveCodeLength="1946" docExpressionCount="172" docLength="1946" projectName="MessageBusClientLibraries" timestamp="228611">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\MessageBusClientLibraries\src\hermes\messagebus\client\library\Client.java]]></filePath>
+    <snapshot><![CDATA[package hermes.messagebus.client.library;
+
+import java.util.Scanner;
+
+public class Client {
+	
+	private static final String TAG_START = "<TAG>";
+	private static final String MSG_START = "<MSG>";
+	private static final String OUTPUT_START = "<OUTPUT>";
+	private static final String MSG_SEND = "<SEND>";
+
+	private InputThread inputThread;
+	
+	public Client(String tagsRegex, MessageReceiver messageReceiver) {
+		sendTags(tagsRegex);
+		inputThread = new InputThread(messageReceiver);
+		(new Thread(inputThread)).start();
+	}
+	
+	private void sendToCentral(String startString, String content) {
+		String fullMessage = startString + content;
+		System.out.println(fullMessage.length());
+		System.out.println(fullMessage);
+	}
+	
+	private void sendTags(String tagsRegex) {
+		sendToCentral(TAG_START, tagsRegex);
+	}
+	
+	public void sendMessage(String message) {
+		sendToCentral(MSG_START, message);
+	}
+	
+	public void sendMessageToUser(String message) {
+		sendToCentral(MSG_SEND, message);
+	}
+	
+	public void output(String output) {
+		sendToCentral(OUTPUT_START, output);
+	}
+	
+	public void stop() {
+		inputThread.stop();
+	}
+	
+	
+	class InputThread implements Runnable {
+
+		private boolean running;
+		private MessageReceiver messageReceiver;
+		
+		public InputThread(MessageReceiver messageReceiver) {
+			running = true;
+			this.messageReceiver = messageReceiver;
+		}
+		
+		public void stop() {
+			running = false;
+		}
+		
+		public void run() {
+			Scanner scanner = new Scanner(System.in);
+			while(running) {
+				int lineLength = scanner.nextInt();
+				scanner.nextLine();
+				String next = "";
+				while(lineLength > 0) {
+					String nextLine = scanner.nextLine();
+					next += nextLine;
+					lineLength -= nextLine.length();
+					if(lineLength > 0) {
+						next += "\n";
+						lineLength--;
+					}
+				}
+				messageReceiver.receiveMessage(next);
+			}
+			scanner.close();
+		}
+		
+	}
+	
+}]]></snapshot>
+  </Command>
+  <Command __id="14" _type="MoveCaretCommand" caretOffset="951" docOffset="951" timestamp="228841" />
+  <Command __id="15" _type="FileOpenCommand" docASTNodeCount="1070" docActiveCodeLength="5881" docExpressionCount="716" docLength="6290" projectName="CheckstyleWebCoder" timestamp="321992">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\CheckstyleWebCoder\src\main\AFileMessage.java]]></filePath>
+  </Command>
+  <Command __id="16" _type="MoveCaretCommand" caretOffset="1186" docOffset="1238" timestamp="322133" />
+  <Command __id="17" _type="FileOpenCommand" docASTNodeCount="1070" docActiveCodeLength="5881" docExpressionCount="716" docLength="6290" projectName="CheckstyleWebCoder" timestamp="325170">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\CheckstyleWebCoder\src\main\AFileMessage.java]]></filePath>
+  </Command>
+  <Command __id="18" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="325512" />
+  <Command __id="19" _type="MoveCaretCommand" caretOffset="49" docOffset="420" timestamp="326914" />
+  <Command __id="20" _type="RunCommand" kind="Create" projectName="CheckstyleWebCoder" timestamp="343261" type="Run" />
+  <Command __id="21" _type="RunCommand" exitValue="1" kind="Terminate" projectName="CheckstyleWebCoder" timestamp="343354" type="Run" />
+  <Command __id="22" _type="MoveCaretCommand" caretOffset="200" docOffset="571" timestamp="348221" />
+  <Command __id="23" _type="MoveCaretCommand" caretOffset="196" docOffset="567" timestamp="349734" />
+  <DocumentChange __id="24" _type="Insert" docASTNodeCount="1071" docActiveCodeLength="5882" docExpressionCount="717" docLength="6291" length="1" offset="567" timestamp="350279">
+    <text><![CDATA[(]]></text>
+  </DocumentChange>
+  <Command __id="25" _type="InsertStringCommand" timestamp="350309">
+    <data><![CDATA[(]]></data>
+  </Command>
+  <Command __id="26" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.COLUMN_NEXT" repeat="19" timestamp="350734" timestamp2="352446" />
+  <Command __id="45" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.COLUMN_PREVIOUS" timestamp="352966" />
+  <DocumentChange __id="46" _type="Insert" docASTNodeCount="1071" docActiveCodeLength="5883" docExpressionCount="717" docLength="6292" length="1" offset="586" timestamp="353339">
+    <text><![CDATA[)]]></text>
+  </DocumentChange>
+  <Command __id="47" _type="InsertStringCommand" timestamp="353349">
+    <data><![CDATA[)]]></data>
+  </Command>
+  <DocumentChange __id="48" _type="Delete" docASTNodeCount="1071" docActiveCodeLength="5882" docExpressionCount="717" docLength="6291" endLine="20" length="1" offset="586" startLine="20" timestamp="355231">
+    <text><![CDATA[)]]></text>
+  </DocumentChange>
+  <Command __id="49" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.DELETE_PREVIOUS" timestamp="355239" />
+  <Command __id="50" _type="MoveCaretCommand" caretOffset="196" docOffset="567" timestamp="357073" />
+  <Command __id="51" _type="MoveCaretCommand" caretOffset="197" docOffset="568" timestamp="358136" />
+  <DocumentChange __id="52" _type="Delete" docASTNodeCount="1070" docActiveCodeLength="5881" docExpressionCount="716" docLength="6290" endLine="20" length="1" offset="567" startLine="20" timestamp="358727">
+    <text><![CDATA[(]]></text>
+  </DocumentChange>
+  <Command __id="53" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.DELETE_PREVIOUS" timestamp="358734" />
+  <Command __id="54" _type="EclipseCommand" commandID="org.eclipse.ui.file.save" timestamp="362192" />
+  <Command __id="55" _type="MoveCaretCommand" caretOffset="300" docOffset="671" timestamp="376697" />
+  <Command __id="56" _type="MoveCaretCommand" caretOffset="77" docOffset="448" timestamp="380155" />
+  <DocumentChange __id="57" _type="Insert" docASTNodeCount="1072" docActiveCodeLength="5908" docExpressionCount="717" docLength="6317" length="27" offset="448" repeat="27" timestamp="381544" timestamp2="385466">
+    <text><![CDATA[implements MessageReceiver ]]></text>
+  </DocumentChange>
+  <Command __id="58" _type="InsertStringCommand" repeat="27" timestamp="381554" timestamp2="385475">
+    <data><![CDATA[implements MessageReceiver ]]></data>
+  </Command>
+  <Command __id="111" _type="FileOpenCommand" docASTNodeCount="134" docActiveCodeLength="773" docExpressionCount="81" docLength="773" projectName="ExampleClient" timestamp="389823">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\ExampleClient\src\example\Example.java]]></filePath>
+    <snapshot><![CDATA[package example;
+
+import org.json.JSONObject;
+
+import hermes.messagebus.client.library.MessageReceiver;
+import hermes.messagebus.client.library.Client;
+
+public class Example implements MessageReceiver {
+	
+	Client clientThread;
+	private static final String TAGS = ".*";
+
+	public static void main(String[] args) {
+		new Example().go();
+	}
+	
+	private void go() {
+	    clientThread = new Client(TAGS, this);
+	}
+	
+	@Override
+	public void receiveMessage(String message) {
+		JSONObject msgObj = new JSONObject(message);
+		String from = msgObj.getString("from");
+		JSONObject messageToSend = new JSONObject();
+		messageToSend.put("to", from);
+		messageToSend.put("status", "received");
+		clientThread.sendMessageToUser(messageToSend.toString());
+	}
+
+}]]></snapshot>
+  </Command>
+  <Command __id="112" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="389968" />
+  <Command __id="113" _type="FileOpenCommand" docASTNodeCount="1072" docActiveCodeLength="5908" docExpressionCount="717" docLength="6317" projectName="CheckstyleWebCoder" timestamp="392177">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\CheckstyleWebCoder\src\main\AFileMessage.java]]></filePath>
+  </Command>
+  <Command __id="114" _type="MoveCaretCommand" caretOffset="104" docOffset="475" timestamp="392297" />
+  <Command __id="115" _type="EclipseCommand" commandID="org.eclipse.ui.file.saveAll" timestamp="394648" />
+  <Command __id="116" _type="RunCommand" kind="Create" projectName="CheckstyleWebCoder" timestamp="396223" type="Run" />
+  <Command __id="117" _type="RunCommand" exitValue="1" kind="Terminate" projectName="CheckstyleWebCoder" timestamp="411910" type="Run" />
+  <Command __id="118" _type="EclipseCommand" commandID="org.eclipse.ui.file.export" repeat="2" timestamp="452114" timestamp2="452115" />
+  <Command __id="120" _type="RunCommand" kind="Create" projectName="CheckstyleWebCoder" timestamp="1010833" type="Run" />
+  <Command __id="121" _type="PasteCommand" timestamp="1036604" />
+  <Command __id="122" _type="MoveCaretCommand" caretOffset="449" docOffset="820" timestamp="1066899" />
+  <Command __id="123" _type="RunCommand" exitValue="1" kind="Terminate" projectName="CheckstyleWebCoder" timestamp="1867687" type="Run" />
+  <Command __id="124" _type="EclipseCommand" commandID="AUTOGEN:::org.eclipse.jdt.debug.CompilationUnitEditor.BreakpointRulerActions/org.eclipse.jdt.debug.ui.actions.ManageBreakpointRulerAction" timestamp="1882404" />
+  <Command __id="125" _type="RunCommand" kind="Create" projectName="CheckstyleWebCoder" timestamp="1884383" type="Run" />
+  <Command __id="126" _type="RunCommand" kind="Create" projectName="CheckstyleWebCoder" timestamp="1884643" type="Debug" />
+  <Command __id="127" _type="PasteCommand" timestamp="1887972" />
+  <Command __id="128" _type="EclipseCommand" commandID="org.eclipse.debug.ui.commands.StepOver" repeat="8" timestamp="1894184" timestamp2="1898507" />
+  <Command __id="136" _type="EclipseCommand" commandID="org.eclipse.ui.views.showView" timestamp="1919934">
+    <org.eclipse.ui.views.showView.viewId><![CDATA[org.eclipse.jdt.debug.ui.DisplayView]]></org.eclipse.ui.views.showView.viewId>
+  </Command>
+  <Command __id="137" _type="EclipseCommand" commandID="org.eclipse.jdt.debug.ui.commands.Execute" timestamp="1930750" />
+  <Command __id="138" _type="EclipseCommand" commandID="org.eclipse.jdt.debug.ui.commands.Display" timestamp="1934324" />
+  <Command __id="139" _type="MoveCaretCommand" caretOffset="765" docOffset="1136" timestamp="1947661" />
+  <Command __id="140" _type="RunCommand" exitValue="0" kind="Terminate" projectName="CheckstyleWebCoder" timestamp="2109060" type="Debug" />
+  <Command __id="141" _type="RunCommand" exitValue="1" kind="Terminate" projectName="CheckstyleWebCoder" timestamp="2109065" type="Run" />
+  <Command __id="142" _type="SelectTextCommand" caretOffset="157" docEnd="216" docOffset="157" docStart="157" end="216" start="157" timestamp="2126288" />
+</Events>

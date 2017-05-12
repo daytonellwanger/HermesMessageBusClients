@@ -1,0 +1,185 @@
+<Events startTimestamp="1492551238263" logVersion="0.11.0.201504031625" osName="Windows 10" osVersion="10.0" lineSeparator="\r\n" numMonitors="1" monitorBounds="[0, 0, 1500, 1000]">
+  <Command __id="0" _type="ShellBoundsCommand" bounds="[172, 172, 1024, 768]" timestamp="31" />
+  <Command __id="1" _type="ShellBoundsCommand" bounds="[-6, -6, 1513, 973]" repeat="2" timestamp="54377" timestamp2="54382" />
+  <Command __id="3" _type="FileOpenCommand" docASTNodeCount="14" docActiveCodeLength="109" docExpressionCount="5" docLength="109" projectName="MessageBusClientLibraries" timestamp="58494">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\MessageBusClientLibraries\src\hermes\messagebus\client\library\MessageReceiver.java]]></filePath>
+    <snapshot><![CDATA[package hermes;
+
+public interface MessageReceiver {
+
+	public void receiveMessage(String message);
+	
+}
+]]></snapshot>
+  </Command>
+  <Command __id="4" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="58973" />
+  <DocumentChange __id="5" _type="Insert" docASTNodeCount="14" docActiveCodeLength="109" docExpressionCount="5" docLength="109" length="26" offset="14" timestamp="62276">
+    <text><![CDATA[.messagebus.client.library]]></text>
+  </DocumentChange>
+  <Command __id="6" _type="FileOpenCommand" docASTNodeCount="286" docActiveCodeLength="1775" docExpressionCount="156" docLength="1775" projectName="MessageBusClientLibraries" timestamp="64003">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\MessageBusClientLibraries\src\hermes\messagebus\client\library\Server.java]]></filePath>
+    <snapshot><![CDATA[package hermes;
+
+import java.util.Scanner;
+
+public class Server {
+	
+	private static final String TAG_START = "<TAG>";
+	private static final String MSG_START = "<MSG>";
+	private static final String OUTPUT_START = "<OUTPUT>";
+
+	private InputThread inputThread;
+	
+	public Server(String tagsRegex, MessageReceiver messageReceiver) {
+		sendTags(tagsRegex);
+		inputThread = new InputThread(messageReceiver);
+		(new Thread(inputThread)).start();
+	}
+	
+	private void sendToCentral(String startString, String content) {
+		String fullMessage = startString + content;
+		System.out.println(fullMessage.length());
+		System.out.println(fullMessage);
+	}
+	
+	private void sendTags(String tagsRegex) {
+		sendToCentral(TAG_START, tagsRegex);
+	}
+	
+	public void sendMessage(String message) {
+		sendToCentral(MSG_START, message);
+	}
+	
+	public void output(String output) {
+		sendToCentral(OUTPUT_START, output);
+	}
+	
+	public void stop() {
+		inputThread.stop();
+	}
+	
+	
+	class InputThread implements Runnable {
+
+		private boolean running;
+		private MessageReceiver messageReceiver;
+		
+		public InputThread(MessageReceiver messageReceiver) {
+			running = true;
+			this.messageReceiver = messageReceiver;
+		}
+		
+		public void stop() {
+			running = false;
+		}
+		
+		public void run() {
+			Scanner scanner = new Scanner(System.in);
+			while(running) {
+				int lineLength = scanner.nextInt();
+				scanner.nextLine();
+				String next = "";
+				while(lineLength > 0) {
+					String nextLine = scanner.nextLine();
+					next += nextLine;
+					lineLength -= nextLine.length();
+					if(lineLength > 0) {
+						next += "\n";
+						lineLength--;
+					}
+				}
+				messageReceiver.receiveMessage(next);
+			}
+			scanner.close();
+		}
+		
+	}
+	
+}]]></snapshot>
+  </Command>
+  <Command __id="7" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="64276" />
+  <DocumentChange __id="8" _type="Insert" docASTNodeCount="286" docActiveCodeLength="1775" docExpressionCount="156" docLength="1775" length="26" offset="14" timestamp="66421">
+    <text><![CDATA[.messagebus.client.library]]></text>
+  </DocumentChange>
+  <Command __id="9" _type="EclipseCommand" commandID="org.eclipse.ui.file.saveAll" timestamp="67488" />
+  <Command __id="10" _type="EclipseCommand" commandID="org.eclipse.ui.file.import" timestamp="148819" />
+  <Command __id="11" _type="EclipseCommand" commandID="org.eclipse.ui.edit.delete" timestamp="159453" />
+  <Command __id="12" _type="FileOpenCommand" docASTNodeCount="122" docActiveCodeLength="715" docExpressionCount="69" docLength="715" projectName="ExampleClient" timestamp="162314">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\ExampleClient\src\example\Example.java]]></filePath>
+    <snapshot><![CDATA[package example;
+
+import org.json.JSONObject;
+
+import hermes.MessageReceiver;
+import hermes.Server;
+
+public class Example implements MessageReceiver {
+	
+	Server hermesServer;
+	private static final String TAGS = ".*";
+
+	public static void main(String[] args) {
+		new Example().go();
+	}
+	
+	private void go() {
+	    hermesServer = new Server(TAGS, this);
+	}
+	
+	@Override
+	public void receiveMessage(String message) {
+		JSONObject msgObj = new JSONObject(message);
+		String from = msgObj.getString("from");
+		JSONObject messageToSend = new JSONObject();
+		messageToSend.put("to", from);
+		messageToSend.put("status", "received");
+		hermesServer.sendMessage(messageToSend.toString());
+	}
+
+}]]></snapshot>
+  </Command>
+  <Command __id="13" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="162583" />
+  <Command __id="14" _type="FileOpenCommand" docASTNodeCount="292" docActiveCodeLength="1801" docExpressionCount="162" docLength="1801" projectName="MessageBusClientLibraries" timestamp="167278">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\MessageBusClientLibraries\src\hermes\messagebus\client\library\Server.java]]></filePath>
+  </Command>
+  <Command __id="15" _type="MoveCaretCommand" caretOffset="0" docOffset="0" timestamp="167412" />
+  <Command __id="16" _type="FileOpenCommand" docASTNodeCount="122" docActiveCodeLength="715" docExpressionCount="69" docLength="715" projectName="ExampleClient" timestamp="169484">
+    <filePath><![CDATA[C:\Users\Dayton\Documents\Hermes\MessageBusClients\ExampleClient\src\example\Example.java]]></filePath>
+  </Command>
+  <Command __id="17" _type="MoveCaretCommand" caretOffset="20" docOffset="20" timestamp="169664" />
+  <Command __id="18" _type="MoveCaretCommand" caretOffset="64" docOffset="64" timestamp="170886" />
+  <Command __id="19" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.COLUMN_NEXT" timestamp="171601" />
+  <DocumentChange __id="20" _type="Insert" docASTNodeCount="128" docActiveCodeLength="741" docExpressionCount="75" docLength="741" length="26" offset="65" repeat="26" timestamp="171989" timestamp2="175223">
+    <text><![CDATA[messagebus.client.library.]]></text>
+  </DocumentChange>
+  <Command __id="21" _type="InsertStringCommand" repeat="11" timestamp="172049" timestamp2="173171">
+    <data><![CDATA[messagebus.]]></data>
+  </Command>
+  <Command __id="42" _type="AssistCommand" assist_type="CONTENT_ASSIST" auto_activated="true" start_end="START" timestamp="173751" />
+  <Command __id="58" _type="AssistCommand" assist_type="CONTENT_ASSIST" auto_activated="false" start_end="END" timestamp="176794" />
+  <Command __id="59" _type="AssistCommand" assist_type="QUICK_ASSIST" auto_activated="false" start_end="START" timestamp="178854" />
+  <Command __id="60" _type="EclipseCommand" commandID="AUTOGEN:::org.eclipse.jdt.internal.ui.CompilationUnitEditor.ruler.actions/org.eclipse.jdt.internal.ui.javaeditor.JavaSelectRulerAction" timestamp="179082" />
+  <Command __id="61" _type="AssistCommand" assist_type="QUICK_ASSIST" auto_activated="false" start_end="END" timestamp="186001" />
+  <Command __id="62" _type="EclipseCommand" commandID="org.eclipse.ui.file.saveAll" timestamp="187632" />
+  <Command __id="63" _type="MoveCaretCommand" caretOffset="126" docOffset="126" timestamp="208213" />
+  <Command __id="64" _type="EclipseCommand" commandID="eventLogger.styledTextCommand.COLUMN_PREVIOUS" repeat="3" timestamp="209298" timestamp2="209616" />
+  <DocumentChange __id="67" _type="Insert" docASTNodeCount="134" docActiveCodeLength="767" docExpressionCount="81" docLength="767" length="26" offset="123" repeat="26" timestamp="210145" timestamp2="213542">
+    <text><![CDATA[messagebus.client.library.]]></text>
+  </DocumentChange>
+  <Command __id="68" _type="InsertStringCommand" repeat="11" timestamp="210167" timestamp2="211445">
+    <data><![CDATA[messagebus.]]></data>
+  </Command>
+  <Command __id="89" _type="AssistCommand" assist_type="CONTENT_ASSIST" auto_activated="true" start_end="START" timestamp="211459" />
+  <Command __id="105" _type="AssistCommand" assist_type="CONTENT_ASSIST" auto_activated="false" start_end="END" timestamp="213602" />
+  <Command __id="106" _type="MoveCaretCommand" caretOffset="158" docOffset="158" timestamp="214803" />
+  <Command __id="107" _type="EclipseCommand" commandID="org.eclipse.ui.file.saveAll" timestamp="216041" />
+  <Command __id="108" _type="MoveCaretCommand" caretOffset="439" docOffset="439" timestamp="218763" />
+  <Command __id="109" _type="RunCommand" kind="Create" projectName="ExampleClient" timestamp="222809" type="Run" />
+  <Command __id="110" _type="RunCommand" exitValue="1" kind="Terminate" projectName="ExampleClient" timestamp="238664" type="Run" />
+  <Command __id="111" _type="EclipseCommand" commandID="org.eclipse.ui.file.export" timestamp="266344" />
+  <Command __id="112" _type="MoveCaretCommand" caretOffset="350" docOffset="350" timestamp="418236" />
+  <Command __id="113" _type="RunCommand" kind="Create" projectName="ExampleClient" timestamp="420086" type="Run" />
+  <Command __id="114" _type="EclipseCommand" commandID="org.eclipse.ui.file.export" timestamp="655528" />
+  <Command __id="115" _type="RunCommand" exitValue="1" kind="Terminate" projectName="ExampleClient" timestamp="667519" type="Run" />
+  <Command __id="116" _type="ShellBoundsCommand" bounds="[-6, -6, 1513, 973]" timestamp="146887889" />
+</Events>
