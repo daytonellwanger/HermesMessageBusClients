@@ -6,7 +6,12 @@ var googleAuth = require('google-auth-library');
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/script-nodejs-quickstart.json
 var SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/documents'];
-var TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
+//console.log(process.env.HOME);
+//console.log(process.env.HOMEPATH);
+//console.log(process.env.USERPROFILE);
+//var TOKEN_DIR = (process.env.HOMEPATH ||
+//    process.env.USERPROFILE) + '/.credentials/';
+var TOKEN_DIR = (
     process.env.USERPROFILE) + '/.credentials/';
 var TOKEN_PATH = TOKEN_DIR + 'script-nodejs-quickstart.json';
 var auth;
@@ -49,6 +54,7 @@ function authorize(credentials, callback) {
   var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
   // Check if we have previously stored a token.
+  //console.log(TOKEN_PATH);
   fs.readFile(TOKEN_PATH, function(err, token) {
     if (err) {
       getNewToken(oauth2Client, callback);

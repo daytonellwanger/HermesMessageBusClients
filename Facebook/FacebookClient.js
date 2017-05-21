@@ -5,8 +5,8 @@ var TAGS_FIELD = "tags";
 var POST_TAG = "FACEBOOK_POST";
 var TAGS = POST_TAG;
 
-var token = 'EAAGZACZCCxKNYBAMoCwHteZB2HXlGmXgJ7c6C3kSDykLiaaZBiGTKWELIYlL9hZARcSPzCTZAeQ0MgkQoxtdUobN0TEppvaSn9ltQMohjJryd1A5nEjGNxUabH0KqBVst4h41iZAXqeX9UKZAsj5Qe3QxqR3ICcYcE7ALZCvAzipk4gZDZD';
-
+//var token = 'EAAGZACZCCxKNYBAMoCwHteZB2HXlGmXgJ7c6C3kSDykLiaaZBiGTKWELIYlL9hZARcSPzCTZAeQ0MgkQoxtdUobN0TEppvaSn9ltQMohjJryd1A5nEjGNxUabH0KqBVst4h41iZAXqeX9UKZAsj5Qe3QxqR3ICcYcE7ALZCvAzipk4gZDZD';
+var token = 'EAAbFdc3jhRwBAFZBCCslLXc3480VgFTZBO5rOpVoNAlDeTdM7OhLEkYJaRnDgSoZCI2SLX2whtfTAtdkC5fSgG03oLPlZBBlpKjG1T8rsJN5n3VyulzfdLIdRkg3FKWEB26dUAa7jYKYglz7B0JZBL5ViCZA5tU9odyzdb1fVDmhmpELCnt9ybkRgWqcwe1kcZD';
 graph.setAccessToken(token);
 
 ClientThread.sendTags(TAGS);
@@ -39,7 +39,7 @@ function post(json) {
         var wallPost = {
             message: json["postMessage"]
         };
-        graph.post("1060715404011874/feed", wallPost, function(err, res) {
+        graph.post("2220977201461279/feed", wallPost, function(err, res) {
             ClientThread.output("Error: " + err);
             ClientThread.output("Res: " + res);
         });
