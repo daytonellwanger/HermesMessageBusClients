@@ -9,7 +9,7 @@
 .project
 .metadata
 GoogleDrive/node_modules
-Facebook/node)modules
+Facebook/node_modules
 bin/**
 tmp/**
 tmp/**/*
