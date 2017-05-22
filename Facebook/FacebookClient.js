@@ -1,16 +1,39 @@
 var graph = require('fbgraph');
 var ClientThread = require("./MessageBusClientThread");
+var fs = require('fs');
 
 var TAGS_FIELD = "tags";
 var POST_TAG = "FACEBOOK_POST";
 var TAGS = POST_TAG;
 
-var token = 'EAAGZACZCCxKNYBAMoCwHteZB2HXlGmXgJ7c6C3kSDykLiaaZBiGTKWELIYlL9hZARcSPzCTZAeQ0MgkQoxtdUobN0TEppvaSn9ltQMohjJryd1A5nEjGNxUabH0KqBVst4h41iZAXqeX9UKZAsj5Qe3QxqR3ICcYcE7ALZCvAzipk4gZDZD';
+var refreshTime = 60 * 1000; //Refresh after 60 seconds.
 
-graph.setAccessToken(token);
+var infoObject;
+var token;
+var pageID;
+var appID;
+var appSecret;
+var lastRefresh;
 
-ClientThread.sendTags(TAGS);
-ClientThread.setInputFinishedCallback(receiveMessage);
+fs.readFile('info.json', processInfo);
+
+function processInfo(err, content) {
+    if (err) {
+      console.log('Error loading file: ' + err);
+      return;
+    }
+
+    infoObject = JSON.parse(content);
+    token = infoObject["token"];
+    pageID = infoObject["pageID"];
+    appID = infoObject["appID"];
+    appSecret = infoObject["appSecret"];
+    lastRefresh = new Date(infoObject["lastRefresh"]);
+
+    graph.setAccessToken(token);
+    ClientThread.sendTags(TAGS);
+    ClientThread.setInputFinishedCallback(receiveMessage);
+}
 
 function receiveMessage(message) { 
     var json = JSON.parse(message);
@@ -34,16 +57,43 @@ function checkJSONProperties(json, properties) {
     return true;
 }
 
+function checkLastRefresh() {
+    var currentDate = new Date();
+    var diff = currentDate.getTime() - lastRefresh.getTime();
+    if(diff > refreshTime) {
+        extendToken();
+    }
+}
+
+function extendToken() {
+    graph.extendAccessToken({
+        "client_id": appID,
+        "client_secret":  appSecret
+    }, function (err, facebookRes) {
+        if(err) {
+            console.log(err);
+        } else {
+            lastRefresh = new Date();
+            infoObject["lastRefresh"] = lastRefresh;
+            infoObject["token"] = facebookRes["access_token"];
+            saveInfo();
+        }
+    });
+}
+
+function saveInfo() {
+    fs.writeFile("info.json", JSON.stringify(infoObject));
+}
+
 function post(json) {
+    checkLastRefresh();
     if(checkJSONProperties(json, ["postMessage"])) {
         var wallPost = {
             message: json["postMessage"]
         };
-        graph.post("1060715404011874/feed", wallPost, function(err, res) {
+        graph.post(pageID, wallPost, function(err, res) {
             ClientThread.output("Error: " + err);
             ClientThread.output("Res: " + res);
         });
     }
 }
-
-
