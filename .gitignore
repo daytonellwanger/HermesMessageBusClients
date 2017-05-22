@@ -8,6 +8,8 @@
 *.pydevproject
 .project
 .metadata
+GoogleDrive/node_modules
+Facebook/node_modules
 bin/**
 tmp/**
 tmp/**/*
@@ -19,6 +21,7 @@ local.properties
 .classpath
 .settings/
 .loadpath
+
 
 # External tool builders
 .externalToolBuilders/
