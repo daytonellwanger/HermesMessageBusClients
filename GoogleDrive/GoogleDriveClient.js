@@ -9,11 +9,12 @@ var EDITOR_CONTENTS_TAG = "EDITOR_CONTENTS";
 var EDITOR_CHANGE_TAG = "EDITOR_CHANGE";
 var APPEND_TAG = "APPEND";
 var UPDATE_PERMISSIONS_TAG = "UPDATE_PERMISSIONS";
+var FILE_DATA_REQUEST_TAG = "FILE_DATA_REQUEST";
 var TAGS = APPEND_TAG + "|" +
             EDITOR_CONTENTS_TAG + "|"
             + EDITOR_CHANGE_TAG + "|"
             + UPDATE_PERMISSIONS_TAG + "|"
-            + "FileDataRequest";
+			+ FILE_DATA_REQUEST_TAG ;
 
 var activeFiles = {};
 
@@ -39,6 +40,10 @@ function receiveMessage(message) {
     }
     if(containsTag(tags, UPDATE_PERMISSIONS_TAG)) {
         ClientThread.output("Got update permissions");
+    }
+	if(containsTag(tags,FILE_DATA_REQUEST_TAG)) {
+        ClientThread.output("Got fle data request");
+		getFileData(json);
     }
 }
 
@@ -78,6 +83,26 @@ function updatePermisisons(json) {
         var filename = getFullFilename(json["from"], json["filename"]);
         AppsScript.changeFilePermissions(filename, json["isPublic"], (result) => {
             ClientThread.output("Permissions changed.");
+        });
+    }
+}
+
+function getFileData(json) {
+    if(checkJSONProperties(json, ["filename", "from"])) {
+
+        var filename = getFullFilename(json["from"], json["filename"]);
+
+        AppsScript.getDocUrl(filename, (result) => {
+            ClientThread.output(result);
+			if (checkJSONProperties(json, ["callbackTag"])) {
+				var aReturnMessage = {};
+				aReturnMessage["tags"] = [json["callbackTag"]];
+				aReturnMessage["fileUrl"] = result;
+				if (checkJSONProperties(json, ["source"])) {
+					aReturnMessage["source"] = json["source"];
+				}
+				ClientThread.sendMessage(JSON.stringify(aReturnMessage));
+			}
         });
     }
 }
