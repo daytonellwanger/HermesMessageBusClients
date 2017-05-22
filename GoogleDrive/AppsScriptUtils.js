@@ -153,7 +153,8 @@ module.exports.applyDiff = function(docPath, diffList, public, callback) {
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
 function callAppsScript(functionName, parameters, callback) {
-  var scriptId = 'M0K3JlWpm_-A5gmR29MlPFeCIhNeaQK4f';
+ // var scriptId = 'M0K3JlWpm_-A5gmR29MlPFeCIhNeaQK4f';
+  var scriptId = 'MTWxUlYwACPkBcN35z8fU4wZrH55onN1u';
   var script = google.script('v1');
 
   // Make the API request. The request object is included here as 'resource'.

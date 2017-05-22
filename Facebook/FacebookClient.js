@@ -6,7 +6,7 @@ var TAGS_FIELD = "tags";
 var POST_TAG = "FACEBOOK_POST";
 var TAGS = POST_TAG;
 
-var refreshTime = 60 * 1000; //Refresh after 60 seconds.
+var refreshTime = 60 * 1000 *60*24*5; //Refresh after 5 days.
 
 var infoObject;
 var token;
