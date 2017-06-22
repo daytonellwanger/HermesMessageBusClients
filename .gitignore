@@ -11,6 +11,8 @@
 GoogleDrive/node_modules
 Facebook/node_modules
 bin/**
+**/bin/**
+*/bin/**
 tmp/**
 tmp/**/*
 *.tmp

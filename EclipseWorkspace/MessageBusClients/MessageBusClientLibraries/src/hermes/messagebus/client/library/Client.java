@@ -2,6 +2,12 @@ package hermes.messagebus.client.library;
 
 import java.util.Scanner;
 
+import util.trace.messagebus.clients.JSONObjectSentToMessageBus;
+import util.trace.messagebus.clients.JSONUserObjectForwardedToMessageBus;
+import util.trace.messagebus.clients.OutputSentToMessageBus;
+import util.trace.messagebus.clients.StringPipedToMessageBus;
+import util.trace.messagebus.clients.TagsSentToMessageBus;
+
 public class Client {
 	
 	private static final String TAG_START = "<TAG>";
@@ -19,23 +25,28 @@ public class Client {
 	
 	private void sendToCentral(String startString, String content) {
 		String fullMessage = startString + content;
+		StringPipedToMessageBus.newCase(this, fullMessage.length(), fullMessage);
 		System.out.println(fullMessage.length());
 		System.out.println(fullMessage);
 	}
 	
 	private void sendTags(String tagsRegex) {
+		TagsSentToMessageBus.newCase(this, tagsRegex);
 		sendToCentral(TAG_START, tagsRegex);
 	}
 	
 	public void sendMessage(String message) {
+		JSONObjectSentToMessageBus.newCase(this, message);
 		sendToCentral(MSG_START, message);
 	}
 	
 	public void sendMessageToUser(String message) {
+		JSONUserObjectForwardedToMessageBus.newCase(this, message);
 		sendToCentral(MSG_SEND, message);
 	}
 	
 	public void output(String output) {
+		OutputSentToMessageBus.newCase(this, output);
 		sendToCentral(OUTPUT_START, output);
 	}
 	
