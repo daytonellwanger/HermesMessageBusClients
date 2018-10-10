@@ -1,0 +1,7 @@
+{
+  "name": "hermes.clients.facebook",
+  "version": "1.0.0",
+  "dependencies": {
+    "fbgraph": "^1.4.4"
+  }
+}
