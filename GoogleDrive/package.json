@@ -1,0 +1,9 @@
+{
+  "name": "hermes.clients.googledrive",
+  "version": "1.0.0",
+  "dependencies": {
+    "googleapis": "^34.0.0",
+    "google-auth-library": "^2.0.0",
+    "diff": "^3.5.0"
+  }
+}
